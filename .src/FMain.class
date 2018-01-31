@@ -1,0 +1,136 @@
+' Gambas class file
+
+Public ISO_File As String = ""
+
+Public Sub ButtonBox1_Click()
+
+  Dialog.Title = "Choose a ISO file"
+  Dialog.Filter = ["*.ISO", "ISO Files"]
+  Dialog.Path = "."
+  Dialog.OpenFile()
+  ISO_File = Dialog.Path
+  ButtonBox1.Text = File.Name(ISO_File)
+
+End
+
+Public Sub Form_Open()
+
+  Me.Center()
+
+End
+
+Public Sub Timer1_Timer()
+
+  If Exist("/dev/sdb") Then
+    usb_status.Text = "USB Device is connected"
+    usb_status.Foreground = Color.Green
+  Else
+    usb_status.Text = "Connect you USB Flash Drive"
+    usb_status.Foreground = Color.Red
+  Endif
+
+End
+
+Public Sub Timer2_Timer()
+
+  If ((ComboBox1.Text <> "(My ISO)") Or (ISO_File <> "" And ComboBox1.Text = "(My ISO)")) And usb_status.Foreground = Color.Green Then
+    Button1.Enabled = True
+  Else
+    Button1.Enabled = False    
+  Endif
+
+End
+
+
+Public Sub Button1_Click()
+
+  Dim URL As String
+  
+  Select ComboBox1.Text
+    Case "Linux Mint Debian Edition"
+      URL = "http://mirrors.evowise.com/linuxmint/debian/lmde-2-201701-cinnamon-64bit.iso"
+    Case "Linux Mint"
+      URL = "http://mirrors.evowise.com/linuxmint/stable/18.1/linuxmint-18.1-cinnamon-64bit.iso"
+    Case "Kubuntu"
+      URL = "http://cdimage.ubuntu.com/kubuntu/releases/17.04/release/kubuntu-17.04-desktop-amd64.iso"
+    Case "Ubuntu"
+      URL = "http://mirror.pnl.gov/releases/zesty/ubuntu-17.04-desktop-amd64.iso"
+    Case "Lubuntu"
+      URL = "http://cdimage.ubuntu.com/lubuntu/releases/17.04/release/lubuntu-17.04-desktop-amd64.iso"
+    Case "Xubuntu"
+      URL = "http://www.mirrorservice.org/sites/cdimage.ubuntu.com/cdimage/xubuntu/releases/16.04/release/xubuntu-16.04-desktop-amd64.iso"
+    Case "Duzeru"
+      URL = "https://sourceforge.net/settings/mirror_choices?projectname=duzeru&filename=DuZeru_2.4/dz-2.4_amd64.iso"
+    Case "Arch Linux"
+      URL = "https://mirror.aarnet.edu.au/pub/archlinux/iso/2017.06.01/archlinux-2017.06.01-x86_64.iso"
+    Case "ZED OS"
+      URL = "https://sourceforge.net/settings/mirror_choices?projectname=zed-os&filename=ZED2017/BETA2/zed2017_BETA_2.iso"
+    Case "Debian"
+      URL = "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-8.8.0-amd64-cinnamon-desktop.iso"
+    Case "Zorin OS"
+      URL = "https://sourceforge.net/settings/mirror_choices?projectname=zorin-os&filename=12/Zorin-OS-12.1-Core-64.iso"
+    Case "Manjaro"
+      URL = "https://downloads.sourceforge.net/manjarolinux/manjaro-xfce-17.0.1-stable-x86_64.iso"
+    Case "PCLinuxOS"
+      URL = "http://mirror.internode.on.net/pub/pclinuxos/pclinuxos/live-cd/64bit/pclinuxos64-kde5-2017.06.iso"
+    Case "OpenSuse"
+      URL = "http://download.opensuse.org/distribution/leap/42.3/iso/openSUSE-Leap-42.3-DVD-x86_64-Current.iso"
+    Case "Pinguy OS"
+      URL = "https://sourceforge.net/settings/mirror_choices?projectname=pinguy-os&filename=Pinguy_OS_14.04_LTS/Full/64/Pinguy_OS_14.04.4-1-LTS_x86-64.iso"
+    Case "Slax"
+      URL = "https://www.slax.org/download/7.0.8/slax-Brazilian-Portuguese-7.0.8-x86_64.iso"
+    Case "CentOS"
+      URL = "http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1611.iso"
+    Case "Kali Linux"
+      URL = "http://cdimage.kali.org/kali-2017.1/kali-linux-2017.1-amd64.iso"
+    Case "Scientific Linux"
+      URL = "http://ftp.scientificlinux.org/linux/scientific/7x/x86_64/iso/SL-7-DVD-x86_64.iso"
+    Case "Mageia"
+      URL = "ftp://mirror.netcologne.de/mageia/iso/5.1/Mageia-5.1-x86_64-DVD/Mageia-5.1-x86_64-DVD.iso"
+    Case "Knoppix"
+      URL = "http://ftp.uni-kl.de/pub/linux/knoppix/KNOPPIX_V7.2.0CD-2013-06-16-EN.iso"
+    Case "Gentoo"
+      URL = "http://gentoo.ussg.indiana.edu//releases/amd64/20160704/livedvd-amd64-multilib-20160704.iso"
+    Case "Funduntu"
+      URL = "https://sourceforge.net/settings/mirror_choices?projectname=fuduntu&filename=Fuduntu-2013.2-x86_64-LiteDVD.iso"
+    Case "Finnix"
+      URL = "https://www.finnix.org/releases/111/finnix-111.iso"
+    Case "Deepin Linux"
+      URL = "https://sourceforge.net/settings/mirror_choices?projectname=deepin&filename=15.4/Release/deepin-15.4-amd64.iso"
+    Case "Damn Small Linux"
+      URL = "http://distro.ibiblio.org/damnsmall/current/dsl-4.4.10.iso"
+    Case "Chakra Linux"
+      URL = "https://rsync.chakralinux.org/releases/chakra-2017.03-goedel-x86_64.iso"
+  End Select
+  
+  ButtonBox1.Enabled = False
+  ComboBox1.Enabled = False
+  Button1.Enabled = False
+  Timer2.Stop()
+  Button1.Enabled = False
+  Button1.Text = "Please wait . . . "
+  
+  If ISO_File == Null Then
+    File.Save("/var/tmp/zed_usb.sh", "#!/bin/bash\nwget -O /var/tmp/tmp.iso \"" & URL & "\"\ndd if=/var/tmp/tmp.iso of=/dev/sdb bs=1M\nrm /var/tmp/tmp.iso\nrm /var/tmp/zed_usb.sh")
+  Else
+    File.Save("/var/tmp/zed_usb.sh", "#!/bin/bash\ndd if='" & ISO_File & "' of=/dev/sdb bs=1M\nrm /var/tmp/zed_usb.sh")
+  Endif
+  Sleep 0.5
+  Shell ("chmod +x /var/tmp/zed_usb.sh;cd /var/tmp;./zed_usb.sh")
+  Timer3.Start()
+  
+End
+
+Public Sub Timer3_Timer()
+
+  If Not Exist("/var/tmp/zed_usb.sh") Then
+    ButtonBox1.Enabled = True
+    ComboBox1.Enabled = True
+    Button1.Enabled = True
+    Timer2.Stop()
+    Button1.Enabled = True
+    Button1.Text = "GO!"
+    Timer3.Stop()
+    Print Message("USB Drive is ready!", "OK")
+  Endif
+End
